@@ -1,0 +1,66 @@
+:root {
+  --terminal-bg: #0a0a0a;
+  --terminal-green: #00ff41;
+  --terminal-amber: #ffb000;
+  --terminal-blue: #00d4ff;
+  --terminal-red: #ff0040;
+  --terminal-dim: #00aa2a;
+  --terminal-font: 'Courier New', 'Lucida Console', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: var(--terminal-bg);
+  color: var(--terminal-green);
+  font-family: var(--terminal-font);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+::selection {
+  background: var(--terminal-green);
+  color: var(--terminal-bg);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--terminal-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--terminal-dim);
+  border-radius: 4px;
+}
+
+a {
+  color: var(--terminal-green);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+input, textarea {
+  background: transparent;
+  border: none;
+  color: var(--terminal-green);
+  font-family: var(--terminal-font);
+  font-size: 16px;
+  outline: none;
+  caret-color: var(--terminal-green);
+}
