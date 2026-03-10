@@ -1,4 +1,5 @@
 using System.Text;
+using ColdCase.Gateway.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -43,6 +44,10 @@ builder.Services.AddCors(options =>
 // YARP Reverse Proxy
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+// Application Services
+builder.Services.AddSingleton<JwtService>();
+builder.Services.AddHttpClient<UserServiceClient>();
 
 var app = builder.Build();
 

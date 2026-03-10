@@ -93,14 +93,14 @@ export class BootSequenceComponent implements OnInit, OnDestroy {
   @HostListener('document:keydown.enter')
   onEnter(): void {
     if (this.showPrompt) {
-      this.router.navigate(['/terminal']);
+      this.router.navigate(['/login']);
     }
   }
 
   @HostListener('document:click')
   onClick(): void {
     if (this.showPrompt) {
-      this.router.navigate(['/terminal']);
+      this.router.navigate(['/login']);
     }
   }
 }
