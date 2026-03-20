@@ -120,4 +120,32 @@ public class AiServiceClient
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<object>();
     }
+
+    // Forensics methods
+    public async Task<ForensicSubmitResult?> SubmitForensics(
+        int caseId, int evidenceId, string analysisType, string agentId)
+    {
+        var payload = new { evidence_id = evidenceId, analysis_type = analysisType, agent_id = agentId };
+        var response = await _httpClient.PostAsJsonAsync(
+            $"/api/ai/cases/{caseId}/forensics/submit", payload);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<ForensicSubmitResult>();
+    }
+
+    public async Task<ForensicStatusResult?> GetForensicStatus(int caseId, int requestId)
+    {
+        var response = await _httpClient.GetAsync(
+            $"/api/ai/cases/{caseId}/forensics/{requestId}");
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<ForensicStatusResult>();
+    }
+
+    public async Task<List<ForensicStatusResult>> GetForensicRequests(int caseId, string agentId)
+    {
+        var response = await _httpClient.GetAsync(
+            $"/api/ai/cases/{caseId}/forensics?agent_id={Uri.EscapeDataString(agentId)}");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<ForensicStatusResult>>() ?? new();
+    }
 }

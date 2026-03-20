@@ -1,6 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -14,6 +15,12 @@ from app.models.schemas import (
     VictimResponse,
 )
 from app.services.case_service import CaseService
+from app.services.forensics_service import (
+    get_available_analyses,
+    get_forensic_request,
+    get_forensic_requests_for_agent,
+    submit_forensic_request,
+)
 
 router = APIRouter(prefix="/api/ai/cases", tags=["cases"])
 
@@ -101,4 +108,85 @@ async def get_evidence(
             is_red_herring=False,
         )
         for e in all_evidence
+    ]
+
+
+# ── Forensics Lab ─────────────────────────────────────────
+
+
+class ForensicSubmitRequest(BaseModel):
+    evidence_id: int
+    analysis_type: str
+    agent_id: str
+
+
+@router.post("/{case_id}/forensics/submit")
+async def submit_forensics(
+    case_id: int,
+    req: ForensicSubmitRequest,
+    db: Session = Depends(get_db),
+):
+    """Submit evidence for forensic analysis."""
+    case = CaseService.get_case(db, case_id)
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    try:
+        forensic_req = submit_forensic_request(
+            db, case_id, req.evidence_id, req.agent_id, req.analysis_type
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {
+        "request_id": forensic_req.id,
+        "status": forensic_req.status,
+        "analysis_type": forensic_req.analysis_type,
+        "estimated_time_seconds": forensic_req.estimated_seconds,
+    }
+
+
+@router.get("/{case_id}/forensics/{request_id}")
+async def get_forensics_status(
+    case_id: int,
+    request_id: int,
+    db: Session = Depends(get_db),
+):
+    """Check status of a forensic analysis request."""
+    req = get_forensic_request(db, case_id, request_id)
+    if not req:
+        raise HTTPException(status_code=404, detail="Forensic request not found")
+
+    return {
+        "request_id": req.id,
+        "evidence_id": req.evidence_id,
+        "analysis_type": req.analysis_type,
+        "status": req.status,
+        "estimated_time_seconds": req.estimated_seconds,
+        "result": req.result,
+        "created_at": req.created_at.isoformat() if req.created_at else None,
+        "completed_at": req.completed_at.isoformat() if req.completed_at else None,
+    }
+
+
+@router.get("/{case_id}/forensics")
+async def list_forensic_requests(
+    case_id: int,
+    agent_id: str = Query(...),
+    db: Session = Depends(get_db),
+):
+    """List all forensic requests for an agent on a case."""
+    requests = get_forensic_requests_for_agent(db, case_id, agent_id)
+    return [
+        {
+            "request_id": r.id,
+            "evidence_id": r.evidence_id,
+            "analysis_type": r.analysis_type,
+            "status": r.status,
+            "estimated_time_seconds": r.estimated_seconds,
+            "result": r.result,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "completed_at": r.completed_at.isoformat() if r.completed_at else None,
+        }
+        for r in requests
     ]

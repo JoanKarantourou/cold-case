@@ -102,3 +102,24 @@ class CaseFileDB(Base):
     classification_level = Column(String(20), nullable=False, default="STANDARD")
 
     case = relationship("CaseDB", back_populates="case_files")
+
+
+class ForensicRequestDB(Base):
+    __tablename__ = "forensic_requests"
+    __table_args__ = {"schema": SCHEMA}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    case_id = Column(Integer, ForeignKey(f"{SCHEMA}.cases.id"), nullable=False)
+    evidence_id = Column(Integer, ForeignKey(f"{SCHEMA}.evidence.id"), nullable=False)
+    agent_id = Column(String(100), nullable=False)
+    analysis_type = Column(String(20), nullable=False)
+    status = Column(String(20), nullable=False, default="PROCESSING")
+    result = Column(Text, nullable=True)
+    estimated_seconds = Column(Integer, nullable=False, default=15)
+    created_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
+    completed_at = Column(DateTime, nullable=True)
+
+    case = relationship("CaseDB")
+    evidence = relationship("EvidenceDB")

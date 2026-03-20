@@ -124,10 +124,17 @@ type InvestigationTab = 'files' | 'suspects' | 'evidence' | 'interrogate' | 'for
               <div class="evidence-desc">{{ item.description }}</div>
             </div>
           </div>
+          <button class="board-btn" (click)="openEvidenceBoard()">[ OPEN EVIDENCE BOARD ]</button>
+        </div>
+
+        <!-- FORENSICS TAB -->
+        <div *ngIf="activeTab === 'forensics' && caseData.progress" class="tab-content">
+          <div class="terminal-line dim">> REDIRECTING TO FORENSICS LABORATORY...</div>
+          <button class="board-btn" (click)="openForensicsLab()">[ ENTER FORENSICS LAB ]</button>
         </div>
 
         <!-- DISABLED TABS -->
-        <div *ngIf="(activeTab === 'forensics' || activeTab === 'report') && caseData.progress"
+        <div *ngIf="activeTab === 'report' && caseData.progress"
              class="tab-content">
           <div class="terminal-line dim">> MODULE NOT YET AVAILABLE. CHECK BACK AFTER SYSTEM UPGRADE.</div>
         </div>
@@ -226,6 +233,22 @@ type InvestigationTab = 'files' | 'suspects' | 'evidence' | 'interrogate' | 'for
 
     .suspect-card.clickable:hover {
       border-color: var(--terminal-amber);
+    }
+
+    .board-btn {
+      background: transparent;
+      border: 1px solid var(--terminal-amber);
+      color: var(--terminal-amber);
+      font-family: var(--terminal-font);
+      font-size: 14px;
+      padding: 8px 16px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    .board-btn:hover {
+      background: var(--terminal-amber);
+      color: var(--terminal-bg);
     }
 
     .tab-content {
@@ -457,7 +480,7 @@ export class InvestigationComponent implements OnInit {
     { id: 'suspects' as InvestigationTab, label: 'SUSPECTS', disabled: false },
     { id: 'evidence' as InvestigationTab, label: 'EVIDENCE', disabled: false },
     { id: 'interrogate' as InvestigationTab, label: 'INTERROGATE', disabled: false },
-    { id: 'forensics' as InvestigationTab, label: 'FORENSICS LAB', disabled: true },
+    { id: 'forensics' as InvestigationTab, label: 'FORENSICS LAB', disabled: false },
     { id: 'report' as InvestigationTab, label: 'FILE REPORT', disabled: true },
   ];
 
@@ -525,6 +548,14 @@ export class InvestigationComponent implements OnInit {
 
   interrogate(suspectId: number): void {
     this.router.navigate(['/terminal/cases', this.caseId, 'interrogate', suspectId]);
+  }
+
+  openEvidenceBoard(): void {
+    this.router.navigate(['/terminal/cases', this.caseId, 'evidence-board']);
+  }
+
+  openForensicsLab(): void {
+    this.router.navigate(['/terminal/cases', this.caseId, 'forensics']);
   }
 
   goBack(): void {

@@ -152,3 +152,31 @@ public class DiscoveredEvidenceItem
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
 }
+
+// Forensics models
+public class ForensicSubmitRequest
+{
+    public int CaseId { get; set; }
+    public int EvidenceId { get; set; }
+    public string AnalysisType { get; set; } = string.Empty;
+}
+
+public class ForensicSubmitResult
+{
+    public int RequestId { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string AnalysisType { get; set; } = string.Empty;
+    public int EstimatedTimeSeconds { get; set; }
+}
+
+public class ForensicStatusResult
+{
+    public int RequestId { get; set; }
+    public int EvidenceId { get; set; }
+    public string AnalysisType { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public int EstimatedTimeSeconds { get; set; }
+    public string? Result { get; set; }
+    public string? CreatedAt { get; set; }
+    public string? CompletedAt { get; set; }
+}

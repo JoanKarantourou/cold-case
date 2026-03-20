@@ -113,6 +113,24 @@ export interface DiscoveredEvidence {
   title: string;
 }
 
+export interface ForensicSubmitResult {
+  requestId: number;
+  status: string;
+  analysisType: string;
+  estimatedTimeSeconds: number;
+}
+
+export interface ForensicStatusResult {
+  requestId: number;
+  evidenceId: number;
+  analysisType: string;
+  status: string;
+  estimatedTimeSeconds: number;
+  result: string | null;
+  createdAt: string | null;
+  completedAt: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CaseService {
   constructor(private http: HttpClient) {}
@@ -182,5 +200,20 @@ export class CaseService {
 
   endInterrogation(caseId: number, suspectId: number): Observable<any> {
     return this.http.post('/api/interrogation/end', { caseId, suspectId });
+  }
+
+  // Forensics methods
+  submitForensics(caseId: number, evidenceId: number, analysisType: string): Observable<ForensicSubmitResult> {
+    return this.http.post<ForensicSubmitResult>('/api/forensics/submit', {
+      caseId, evidenceId, analysisType
+    });
+  }
+
+  getForensicStatus(caseId: number, requestId: number): Observable<ForensicStatusResult> {
+    return this.http.get<ForensicStatusResult>(`/api/forensics/${caseId}/status/${requestId}`);
+  }
+
+  getForensicRequests(caseId: number): Observable<ForensicStatusResult[]> {
+    return this.http.get<ForensicStatusResult[]>(`/api/forensics/${caseId}/requests`);
   }
 }
