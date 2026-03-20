@@ -88,6 +88,31 @@ export interface CaseFileDetail extends CaseFile {
   content: string;
 }
 
+export interface InterrogationStartResult {
+  sessionActive: boolean;
+  emotionalState: string;
+  messageCount: number;
+  history: InterrogationEntry[];
+  openingStatement: string | null;
+}
+
+export interface InterrogationEntry {
+  role: 'agent' | 'suspect';
+  content: string;
+}
+
+export interface InterrogationMessageResult {
+  response: string;
+  emotionalState: string;
+  messageCount: number;
+  evidenceDiscovered: DiscoveredEvidence[];
+}
+
+export interface DiscoveredEvidence {
+  id: number;
+  title: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CaseService {
   constructor(private http: HttpClient) {}
@@ -133,5 +158,29 @@ export class CaseService {
 
   discoverEvidence(caseId: number, evidenceId: number): Observable<CaseProgress> {
     return this.http.put<CaseProgress>(`/api/case/${caseId}/evidence/${evidenceId}/discover`, {});
+  }
+
+  // Interrogation methods
+  startInterrogation(caseId: number, suspectId: number): Observable<InterrogationStartResult> {
+    return this.http.post<InterrogationStartResult>('/api/interrogation/start', { caseId, suspectId });
+  }
+
+  sendInterrogationMessage(
+    caseId: number,
+    suspectId: number,
+    message: string,
+    presentedEvidenceIds: number[] = []
+  ): Observable<InterrogationMessageResult> {
+    return this.http.post<InterrogationMessageResult>('/api/interrogation/message', {
+      caseId, suspectId, message, presentedEvidenceIds
+    });
+  }
+
+  getInterrogationHistory(caseId: number, suspectId: number): Observable<any> {
+    return this.http.get(`/api/interrogation/history/${caseId}/${suspectId}`);
+  }
+
+  endInterrogation(caseId: number, suspectId: number): Observable<any> {
+    return this.http.post('/api/interrogation/end', { caseId, suspectId });
   }
 }

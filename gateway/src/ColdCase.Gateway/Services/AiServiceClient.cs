@@ -77,4 +77,47 @@ public class AiServiceClient
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<List<VictimDto>>() ?? new();
     }
+
+    // Interrogation methods
+    public async Task<InterrogationStartResult?> StartInterrogation(int caseId, int suspectId, string agentId)
+    {
+        var payload = new { case_id = caseId, suspect_id = suspectId, agent_id = agentId };
+        var response = await _httpClient.PostAsJsonAsync("/api/ai/interrogation/start", payload);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<InterrogationStartResult>();
+    }
+
+    public async Task<InterrogationMessageResult?> SendInterrogationMessage(
+        int caseId, int suspectId, string agentId, string message, List<int> presentedEvidenceIds)
+    {
+        var payload = new
+        {
+            case_id = caseId,
+            suspect_id = suspectId,
+            agent_id = agentId,
+            message,
+            presented_evidence_ids = presentedEvidenceIds
+        };
+        var response = await _httpClient.PostAsJsonAsync("/api/ai/interrogation/message", payload);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<InterrogationMessageResult>();
+    }
+
+    public async Task<InterrogationHistoryResult?> GetInterrogationHistory(
+        int caseId, int suspectId, string agentId)
+    {
+        var response = await _httpClient.GetAsync(
+            $"/api/ai/interrogation/history/{caseId}/{suspectId}/{agentId}");
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<InterrogationHistoryResult>();
+    }
+
+    public async Task<object?> EndInterrogation(int caseId, int suspectId, string agentId)
+    {
+        var payload = new { case_id = caseId, suspect_id = suspectId, agent_id = agentId };
+        var response = await _httpClient.PostAsJsonAsync("/api/ai/interrogation/end", payload);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<object>();
+    }
 }

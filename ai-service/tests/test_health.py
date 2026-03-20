@@ -43,9 +43,18 @@ def test_case_not_found():
     assert response.status_code == 404
 
 
-def test_interrogation_endpoint():
-    response = client.get("/api/ai/interrogation")
-    assert response.status_code == 200
+def test_interrogation_start_missing_suspect():
+    mock_db.query.return_value.filter.return_value.first.return_value = None
+    response = client.post(
+        "/api/ai/interrogation/start",
+        json={"case_id": 1, "suspect_id": 999, "agent_id": "test-agent"}
+    )
+    assert response.status_code == 404
+
+
+def test_interrogation_history_not_found():
+    response = client.get("/api/ai/interrogation/history/1/1/nonexistent")
+    assert response.status_code == 404
 
 
 def test_mood_endpoint():

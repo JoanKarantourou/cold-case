@@ -94,3 +94,61 @@ public class CaseFileDetailDto : CaseFileListDto
 {
     public string Content { get; set; } = string.Empty;
 }
+
+// Interrogation models
+public class StartInterrogationRequest
+{
+    public int CaseId { get; set; }
+    public int SuspectId { get; set; }
+}
+
+public class InterrogationMessageRequest
+{
+    public int CaseId { get; set; }
+    public int SuspectId { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public List<int> PresentedEvidenceIds { get; set; } = new();
+}
+
+public class EndInterrogationRequest
+{
+    public int CaseId { get; set; }
+    public int SuspectId { get; set; }
+}
+
+public class InterrogationStartResult
+{
+    public bool SessionActive { get; set; }
+    public string EmotionalState { get; set; } = string.Empty;
+    public int MessageCount { get; set; }
+    public List<InterrogationHistoryEntry> History { get; set; } = new();
+    public string? OpeningStatement { get; set; }
+}
+
+public class InterrogationMessageResult
+{
+    public string Response { get; set; } = string.Empty;
+    public string EmotionalState { get; set; } = string.Empty;
+    public int MessageCount { get; set; }
+    public List<DiscoveredEvidenceItem> EvidenceDiscovered { get; set; } = new();
+}
+
+public class InterrogationHistoryResult
+{
+    public string EmotionalState { get; set; } = string.Empty;
+    public int MessageCount { get; set; }
+    public List<InterrogationHistoryEntry> History { get; set; } = new();
+    public List<DiscoveredEvidenceItem> EvidenceDiscovered { get; set; } = new();
+}
+
+public class InterrogationHistoryEntry
+{
+    public string Role { get; set; } = string.Empty;
+    public string Content { get; set; } = string.Empty;
+}
+
+public class DiscoveredEvidenceItem
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+}

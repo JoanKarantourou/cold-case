@@ -82,6 +82,33 @@ type InvestigationTab = 'files' | 'suspects' | 'evidence' | 'interrogate' | 'for
                 <div class="suspect-detail">AGE: {{ suspect.age }} | {{ suspect.occupation.toUpperCase() }}</div>
                 <div class="suspect-detail">RELATION: {{ suspect.relationshipToVictim }}</div>
                 <div class="suspect-detail">ALIBI: {{ suspect.alibi }}</div>
+                <button class="interrogate-btn" (click)="interrogate(suspect.id)">
+                  [ INTERROGATE ]
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INTERROGATION TAB (select suspect) -->
+        <div *ngIf="activeTab === 'interrogate' && caseData.progress" class="tab-content">
+          <div class="terminal-line dim">> SELECT SUSPECT TO INTERROGATE:</div>
+          <div class="suspect-list">
+            <div *ngFor="let suspect of suspects"
+                 class="suspect-card clickable"
+                 (click)="interrogate(suspect.id)">
+              <div class="suspect-ascii">
+                ┌─────────┐
+                │  ◉   ◉  │
+                │    ▽    │
+                │  ╰───╯  │
+                └─────────┘
+              </div>
+              <div class="suspect-info">
+                <div class="suspect-name">{{ suspect.name.toUpperCase() }}</div>
+                <div class="suspect-detail">{{ suspect.occupation.toUpperCase() }}</div>
+                <div class="suspect-detail">{{ suspect.relationshipToVictim }}</div>
+                <button class="interrogate-btn">[ ENTER INTERROGATION ROOM ]</button>
               </div>
             </div>
           </div>
@@ -100,7 +127,7 @@ type InvestigationTab = 'files' | 'suspects' | 'evidence' | 'interrogate' | 'for
         </div>
 
         <!-- DISABLED TABS -->
-        <div *ngIf="(activeTab === 'interrogate' || activeTab === 'forensics' || activeTab === 'report') && caseData.progress"
+        <div *ngIf="(activeTab === 'forensics' || activeTab === 'report') && caseData.progress"
              class="tab-content">
           <div class="terminal-line dim">> MODULE NOT YET AVAILABLE. CHECK BACK AFTER SYSTEM UPGRADE.</div>
         </div>
@@ -175,6 +202,30 @@ type InvestigationTab = 'files' | 'suspects' | 'evidence' | 'interrogate' | 'for
     .tab-btn.disabled {
       color: #333;
       cursor: not-allowed;
+    }
+
+    .interrogate-btn {
+      background: transparent;
+      border: 1px solid var(--terminal-amber);
+      color: var(--terminal-amber);
+      font-family: var(--terminal-font);
+      font-size: 12px;
+      padding: 4px 10px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .interrogate-btn:hover {
+      background: var(--terminal-amber);
+      color: var(--terminal-bg);
+    }
+
+    .suspect-card.clickable {
+      cursor: pointer;
+    }
+
+    .suspect-card.clickable:hover {
+      border-color: var(--terminal-amber);
     }
 
     .tab-content {
@@ -405,7 +456,7 @@ export class InvestigationComponent implements OnInit {
     { id: 'files' as InvestigationTab, label: 'CASE FILES', disabled: false },
     { id: 'suspects' as InvestigationTab, label: 'SUSPECTS', disabled: false },
     { id: 'evidence' as InvestigationTab, label: 'EVIDENCE', disabled: false },
-    { id: 'interrogate' as InvestigationTab, label: 'INTERROGATE', disabled: true },
+    { id: 'interrogate' as InvestigationTab, label: 'INTERROGATE', disabled: false },
     { id: 'forensics' as InvestigationTab, label: 'FORENSICS LAB', disabled: true },
     { id: 'report' as InvestigationTab, label: 'FILE REPORT', disabled: true },
   ];
@@ -470,6 +521,10 @@ export class InvestigationComponent implements OnInit {
 
   closeFile(): void {
     this.openedFile = null;
+  }
+
+  interrogate(suspectId: number): void {
+    this.router.navigate(['/terminal/cases', this.caseId, 'interrogate', suspectId]);
   }
 
   goBack(): void {
