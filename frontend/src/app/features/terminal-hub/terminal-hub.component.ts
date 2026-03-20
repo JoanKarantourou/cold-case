@@ -33,10 +33,10 @@ import { AuthService, Agent } from '../../core/services/auth.service';
               <span class="btn-label">ACTIVE INVESTIGATIONS</span>
               <span class="btn-desc">View ongoing cases</span>
             </button>
-            <button class="terminal-btn" disabled>
-              <span class="btn-icon">📦</span>
-              <span class="btn-label">EVIDENCE LOCKER</span>
-              <span class="btn-desc">Review collected evidence</span>
+            <button class="terminal-btn" (click)="navigate('/terminal/mood')">
+              <span class="btn-icon">🎭</span>
+              <span class="btn-label">MOOD MATCHER</span>
+              <span class="btn-desc">Match cases by image or mood</span>
             </button>
             <button class="terminal-btn" disabled>
               <span class="btn-icon">👤</span>

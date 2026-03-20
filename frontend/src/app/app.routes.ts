@@ -47,5 +47,10 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/case-report/case-report.component').then(m => m.CaseReportComponent)
   },
+  {
+    path: 'terminal/mood',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/mood-matcher/mood-matcher.component').then(m => m.MoodMatcherComponent)
+  },
   { path: '**', redirectTo: '' }
 ];
