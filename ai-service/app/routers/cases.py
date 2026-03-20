@@ -21,7 +21,10 @@ from app.services.forensics_service import (
     get_forensic_requests_for_agent,
     submit_forensic_request,
 )
+from app.models.db_models import CaseGenerationRequestDB
+from app.services.case_generator import case_generator, run_generation_in_background
 from app.services.scoring_service import evaluate_submission
+from app.database import SessionLocal
 
 router = APIRouter(prefix="/api/ai/cases", tags=["cases"])
 
@@ -110,6 +113,81 @@ async def get_evidence(
         )
         for e in all_evidence
     ]
+
+
+# ── Case Generation ───────────────────────────────────────
+
+
+class GenerateRequest(BaseModel):
+    mood_tags: Optional[list[str]] = None
+    era: Optional[str] = None
+    difficulty: Optional[int] = None
+    crime_type: Optional[str] = None
+
+
+@router.post("/generate")
+async def generate_case(req: GenerateRequest, db: Session = Depends(get_db)):
+    """Trigger async case generation. Returns a generation_id to poll."""
+    gen_req = CaseGenerationRequestDB(
+        status="PROCESSING",
+        mood_tags=req.mood_tags,
+        era=req.era,
+        difficulty=req.difficulty,
+        crime_type=req.crime_type,
+    )
+    db.add(gen_req)
+    db.commit()
+    db.refresh(gen_req)
+
+    run_generation_in_background(
+        generation_id=gen_req.id,
+        db_session_factory=SessionLocal,
+        mood_tags=req.mood_tags,
+        era=req.era,
+        difficulty=req.difficulty,
+        crime_type=req.crime_type,
+    )
+
+    return {
+        "generation_id": gen_req.id,
+        "status": "PROCESSING",
+        "message": "Case generation started. Poll /generate/{generation_id} for status.",
+    }
+
+
+@router.get("/generate/{generation_id}")
+async def get_generation_status(generation_id: int, db: Session = Depends(get_db)):
+    """Check the status of an async case generation request."""
+    gen_req = (
+        db.query(CaseGenerationRequestDB)
+        .filter(CaseGenerationRequestDB.id == generation_id)
+        .first()
+    )
+    if not gen_req:
+        raise HTTPException(status_code=404, detail="Generation request not found")
+
+    result = {
+        "generation_id": gen_req.id,
+        "status": gen_req.status,
+        "created_at": gen_req.created_at.isoformat() if gen_req.created_at else None,
+        "completed_at": gen_req.completed_at.isoformat() if gen_req.completed_at else None,
+    }
+
+    if gen_req.status == "COMPLETE" and gen_req.case_id:
+        case = CaseService.get_case(db, gen_req.case_id)
+        if case:
+            result["case"] = CaseSummary(
+                id=case.id,
+                title=case.title,
+                case_number=case.case_number,
+                classification=case.classification,
+                difficulty=case.difficulty,
+                mood_tags=case.mood_tags,
+                era=case.era,
+                synopsis=case.synopsis,
+            ).model_dump()
+
+    return result
 
 
 # ── Case Solving ──────────────────────────────────────────

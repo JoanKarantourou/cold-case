@@ -123,3 +123,20 @@ class ForensicRequestDB(Base):
 
     case = relationship("CaseDB")
     evidence = relationship("EvidenceDB")
+
+
+class CaseGenerationRequestDB(Base):
+    __tablename__ = "case_generation_requests"
+    __table_args__ = {"schema": SCHEMA}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    status = Column(String(20), nullable=False, default="PROCESSING")
+    mood_tags = Column(ARRAY(String), nullable=True)
+    era = Column(String(10), nullable=True)
+    difficulty = Column(Integer, nullable=True)
+    crime_type = Column(String(50), nullable=True)
+    case_id = Column(Integer, nullable=True)
+    created_at = Column(
+        DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
+    )
+    completed_at = Column(DateTime, nullable=True)
