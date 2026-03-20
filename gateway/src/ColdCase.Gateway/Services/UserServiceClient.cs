@@ -50,6 +50,51 @@ public class UserServiceClient
         return await response.Content.ReadFromJsonAsync<AgentDto>();
     }
 
+    public async Task<CaseProgressDto?> StartCase(string agentId, int caseId)
+    {
+        var response = await _httpClient.PostAsync(
+            $"/api/users/agents/{agentId}/cases/{caseId}/start", null);
+
+        if (response.StatusCode == HttpStatusCode.Conflict)
+        {
+            var error = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+            throw new InvalidOperationException(error?.Message ?? "Case already started");
+        }
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<CaseProgressDto>();
+    }
+
+    public async Task<List<CaseProgressDto>> GetCaseProgressList(string agentId)
+    {
+        var response = await _httpClient.GetAsync($"/api/users/agents/{agentId}/cases");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<List<CaseProgressDto>>() ?? new();
+    }
+
+    public async Task<CaseProgressDto?> GetCaseProgress(string agentId, int caseId)
+    {
+        var response = await _httpClient.GetAsync($"/api/users/agents/{agentId}/cases/{caseId}");
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+            return null;
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<CaseProgressDto>();
+    }
+
+    public async Task<CaseProgressDto?> DiscoverEvidence(string agentId, int caseId, int evidenceId)
+    {
+        var response = await _httpClient.PutAsync(
+            $"/api/users/agents/{agentId}/cases/{caseId}/evidence/{evidenceId}/discover", null);
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+            return null;
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<CaseProgressDto>();
+    }
+
     private class ErrorResponse
     {
         public string? Error { get; set; }

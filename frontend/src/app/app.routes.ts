@@ -17,5 +17,15 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/terminal-hub/terminal-hub.component').then(m => m.TerminalHubComponent)
   },
+  {
+    path: 'terminal/cases',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/case-browser/case-browser.component').then(m => m.CaseBrowserComponent)
+  },
+  {
+    path: 'terminal/cases/:caseId',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/investigation/investigation.component').then(m => m.InvestigationComponent)
+  },
   { path: '**', redirectTo: '' }
 ];

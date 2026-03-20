@@ -1,6 +1,8 @@
 package com.coldcase.userservice.config;
 
 import com.coldcase.userservice.exception.AgentNotFoundException;
+import com.coldcase.userservice.exception.CaseAlreadyStartedException;
+import com.coldcase.userservice.exception.CaseProgressNotFoundException;
 import com.coldcase.userservice.exception.DuplicateEmailException;
 import com.coldcase.userservice.exception.DuplicateUsernameException;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleNotFound(AgentNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "error", "Not Found",
+                "message", ex.getMessage(),
+                "timestamp", Instant.now().toString()
+        ));
+    }
+
+    @ExceptionHandler(CaseProgressNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCaseProgressNotFound(CaseProgressNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "error", "Not Found",
+                "message", ex.getMessage(),
+                "timestamp", Instant.now().toString()
+        ));
+    }
+
+    @ExceptionHandler(CaseAlreadyStartedException.class)
+    public ResponseEntity<Map<String, Object>> handleCaseAlreadyStarted(CaseAlreadyStartedException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                "error", "Conflict",
                 "message", ex.getMessage(),
                 "timestamp", Instant.now().toString()
         ));

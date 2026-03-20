@@ -48,6 +48,7 @@ builder.Services.AddReverseProxy()
 // Application Services
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddHttpClient<UserServiceClient>();
+builder.Services.AddHttpClient<AiServiceClient>();
 
 var app = builder.Build();
 
