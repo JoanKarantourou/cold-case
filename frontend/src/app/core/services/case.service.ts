@@ -113,6 +113,26 @@ export interface DiscoveredEvidence {
   title: string;
 }
 
+export interface SolveCaseRequest {
+  accusedSuspectId: number;
+  motive: string;
+  method: string;
+  keyEvidenceIds: number[];
+  timelineOfEvents: string;
+}
+
+export interface SolveResult {
+  correctKiller: boolean;
+  motiveAccuracy: number;
+  evidenceScore: number;
+  redHerringPenalty: number;
+  discoveryRate: number;
+  overallScore: number;
+  rankEarned: string;
+  feedback: string;
+  fullSolution: string;
+}
+
 export interface ForensicSubmitResult {
   requestId: number;
   status: string;
@@ -200,6 +220,11 @@ export class CaseService {
 
   endInterrogation(caseId: number, suspectId: number): Observable<any> {
     return this.http.post('/api/interrogation/end', { caseId, suspectId });
+  }
+
+  // Solve methods
+  solveCase(caseId: number, request: SolveCaseRequest): Observable<SolveResult> {
+    return this.http.post<SolveResult>(`/api/case/${caseId}/solve`, request);
   }
 
   // Forensics methods

@@ -95,6 +95,15 @@ public class UserServiceClient
         return await response.Content.ReadFromJsonAsync<CaseProgressDto>();
     }
 
+    public async Task<CaseProgressDto?> CompleteCase(string agentId, int caseId, int score, string rank)
+    {
+        var payload = new { score, rank };
+        var response = await _httpClient.PostAsJsonAsync(
+            $"/api/users/agents/{agentId}/cases/{caseId}/complete", payload);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<CaseProgressDto>();
+    }
+
     private class ErrorResponse
     {
         public string? Error { get; set; }

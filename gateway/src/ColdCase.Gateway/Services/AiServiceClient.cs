@@ -121,6 +121,23 @@ public class AiServiceClient
         return await response.Content.ReadFromJsonAsync<object>();
     }
 
+    // Solve methods
+    public async Task<SolveResult?> SolveCase(int caseId, string agentId, SolveCaseRequest request)
+    {
+        var payload = new
+        {
+            agent_id = agentId,
+            accused_suspect_id = request.AccusedSuspectId,
+            motive = request.Motive,
+            method = request.Method,
+            key_evidence_ids = request.KeyEvidenceIds,
+            timeline_of_events = request.TimelineOfEvents
+        };
+        var response = await _httpClient.PostAsJsonAsync($"/api/ai/cases/{caseId}/solve", payload);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<SolveResult>();
+    }
+
     // Forensics methods
     public async Task<ForensicSubmitResult?> SubmitForensics(
         int caseId, int evidenceId, string analysisType, string agentId)

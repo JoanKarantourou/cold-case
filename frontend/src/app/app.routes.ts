@@ -42,5 +42,10 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/forensics-lab/forensics-lab.component').then(m => m.ForensicsLabComponent)
   },
+  {
+    path: 'terminal/cases/:caseId/report',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/case-report/case-report.component').then(m => m.CaseReportComponent)
+  },
   { path: '**', redirectTo: '' }
 ];

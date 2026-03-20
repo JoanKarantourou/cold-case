@@ -133,10 +133,11 @@ type InvestigationTab = 'files' | 'suspects' | 'evidence' | 'interrogate' | 'for
           <button class="board-btn" (click)="openForensicsLab()">[ ENTER FORENSICS LAB ]</button>
         </div>
 
-        <!-- DISABLED TABS -->
-        <div *ngIf="activeTab === 'report' && caseData.progress"
-             class="tab-content">
-          <div class="terminal-line dim">> MODULE NOT YET AVAILABLE. CHECK BACK AFTER SYSTEM UPGRADE.</div>
+        <!-- FILE REPORT TAB -->
+        <div *ngIf="activeTab === 'report' && caseData.progress" class="tab-content">
+          <div class="terminal-line dim">> READY TO FILE YOUR CASE REPORT?</div>
+          <div class="terminal-line dim">> Ensure you have gathered enough evidence and interrogated all suspects.</div>
+          <button class="board-btn" (click)="openCaseReport()">[ FILE CASE REPORT ]</button>
         </div>
 
         <!-- VICTIMS INFO -->
@@ -481,7 +482,7 @@ export class InvestigationComponent implements OnInit {
     { id: 'evidence' as InvestigationTab, label: 'EVIDENCE', disabled: false },
     { id: 'interrogate' as InvestigationTab, label: 'INTERROGATE', disabled: false },
     { id: 'forensics' as InvestigationTab, label: 'FORENSICS LAB', disabled: false },
-    { id: 'report' as InvestigationTab, label: 'FILE REPORT', disabled: true },
+    { id: 'report' as InvestigationTab, label: 'FILE REPORT', disabled: false },
   ];
 
   private caseId!: number;
@@ -556,6 +557,10 @@ export class InvestigationComponent implements OnInit {
 
   openForensicsLab(): void {
     this.router.navigate(['/terminal/cases', this.caseId, 'forensics']);
+  }
+
+  openCaseReport(): void {
+    this.router.navigate(['/terminal/cases', this.caseId, 'report']);
   }
 
   goBack(): void {

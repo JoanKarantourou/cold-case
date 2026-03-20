@@ -1,7 +1,9 @@
 package com.coldcase.userservice.controller;
 
 import com.coldcase.userservice.dto.CaseProgressResponse;
+import com.coldcase.userservice.dto.CompleteCaseRequest;
 import com.coldcase.userservice.service.CaseProgressService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,5 +44,13 @@ public class CaseProgressController {
                                                                  @PathVariable Integer caseId,
                                                                  @PathVariable Integer evidenceId) {
         return ResponseEntity.ok(caseProgressService.discoverEvidence(agentId, caseId, evidenceId));
+    }
+
+    @PostMapping("/{caseId}/complete")
+    public ResponseEntity<CaseProgressResponse> completeCase(@PathVariable UUID agentId,
+                                                              @PathVariable Integer caseId,
+                                                              @Valid @RequestBody CompleteCaseRequest request) {
+        return ResponseEntity.ok(
+                caseProgressService.completeCase(agentId, caseId, request.getScore(), request.getRank()));
     }
 }

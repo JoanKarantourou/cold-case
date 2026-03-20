@@ -21,6 +21,7 @@ from app.services.forensics_service import (
     get_forensic_requests_for_agent,
     submit_forensic_request,
 )
+from app.services.scoring_service import evaluate_submission
 
 router = APIRouter(prefix="/api/ai/cases", tags=["cases"])
 
@@ -109,6 +110,45 @@ async def get_evidence(
         )
         for e in all_evidence
     ]
+
+
+# ── Case Solving ──────────────────────────────────────────
+
+
+class SolveRequest(BaseModel):
+    agent_id: str
+    accused_suspect_id: int
+    motive: str
+    method: str
+    key_evidence_ids: list[int] = []
+    timeline_of_events: str = ""
+
+
+@router.post("/{case_id}/solve")
+async def solve_case(
+    case_id: int,
+    req: SolveRequest,
+    db: Session = Depends(get_db),
+):
+    """Submit a case solution and receive scoring."""
+    case = CaseService.get_case(db, case_id)
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    try:
+        result = evaluate_submission(
+            db,
+            case_id=case_id,
+            accused_suspect_id=req.accused_suspect_id,
+            motive=req.motive,
+            method=req.method,
+            key_evidence_ids=req.key_evidence_ids,
+            timeline_of_events=req.timeline_of_events,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return result
 
 
 # ── Forensics Lab ─────────────────────────────────────────

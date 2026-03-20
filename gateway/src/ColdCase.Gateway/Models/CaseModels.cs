@@ -154,6 +154,29 @@ public class DiscoveredEvidenceItem
 }
 
 // Forensics models
+// Solve models
+public class SolveCaseRequest
+{
+    public int AccusedSuspectId { get; set; }
+    public string Motive { get; set; } = string.Empty;
+    public string Method { get; set; } = string.Empty;
+    public List<int> KeyEvidenceIds { get; set; } = new();
+    public string TimelineOfEvents { get; set; } = string.Empty;
+}
+
+public class SolveResult
+{
+    public bool CorrectKiller { get; set; }
+    public double MotiveAccuracy { get; set; }
+    public double EvidenceScore { get; set; }
+    public int RedHerringPenalty { get; set; }
+    public double DiscoveryRate { get; set; }
+    public int OverallScore { get; set; }
+    public string RankEarned { get; set; } = string.Empty;
+    public string Feedback { get; set; } = string.Empty;
+    public string FullSolution { get; set; } = string.Empty;
+}
+
 public class ForensicSubmitRequest
 {
     public int CaseId { get; set; }
